@@ -39,7 +39,7 @@ class IntSerializer(Serializer):
         return int.from_bytes(data, ENDIAN)
 
     @beartype
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "IntSerializer()"
 
 
@@ -57,7 +57,7 @@ class StrSerializer(Serializer):
         return data.decode(encoding="utf-8")
 
     @beartype
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "StrSerializer()"
 
 
@@ -73,7 +73,7 @@ class UUIDSerializer(Serializer):
         return UUID(bytes=data)
 
     @beartype
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "UUIDSerializer()"
 
 
@@ -81,7 +81,7 @@ class DatetimeUTCSerializer(Serializer):
     __slots__ = []
 
     @beartype
-    def __init__(self):
+    def __init__(self) -> None:
         if temporenc is None:
             raise RuntimeError(
                 "Serialization to/from datetime needs the "
@@ -101,5 +101,5 @@ class DatetimeUTCSerializer(Serializer):
         return rv
 
     @beartype
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "DatetimeUTCSerializer()"

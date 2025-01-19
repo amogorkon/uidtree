@@ -13,7 +13,7 @@ from beartype import beartype
 
 
 @beartype
-def test_create_and_load_file(clean_file: Path):
+def test_create_and_load_file(clean_file: Path) -> None:
     btree = BPlusTree(clean_file)
     assert isinstance(btree._mem, FileMemory)
     btree.insert(5, b"foo")
@@ -26,7 +26,7 @@ def test_create_and_load_file(clean_file: Path):
 
 
 @beartype
-def test_insert_and_get(clean_file: Path):
+def test_insert_and_get(clean_file: Path) -> None:
     btree = BPlusTree(clean_file, key_size=16, value_size=16, order=4)
     btree.insert(1, b"foo")
     assert btree.get(1) == b"foo"
@@ -34,7 +34,7 @@ def test_insert_and_get(clean_file: Path):
 
 
 @beartype
-def test_batch_insert(clean_file: Path):
+def test_batch_insert(clean_file: Path) -> None:
     btree = BPlusTree(clean_file, key_size=16, value_size=16, order=4)
 
     btree.batch_insert([(i, str(i).encode()) for i in range(1000)])
@@ -47,7 +47,7 @@ def test_batch_insert(clean_file: Path):
 
 
 @beartype
-def test_file_memory_node(clean_file: Path):
+def test_file_memory_node(clean_file: Path) -> None:
     tree_conf = TreeConf(4096, 4, 16, 16, IntSerializer())
     node = LeafNode(tree_conf, page=3)
     mem = FileMemory(clean_file, tree_conf)

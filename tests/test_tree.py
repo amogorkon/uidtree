@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Iterator
 from unittest import mock
 
 import pytest
@@ -11,7 +12,7 @@ from beartype import beartype
 
 
 @beartype
-def test_create_and_load_file(clean_file: Path):
+def test_create_and_load_file(clean_file: Path) -> None:
     btree = BPlusTree(clean_file)
     assert isinstance(btree._mem, FileMemory)
     btree.insert(5, b"foo")
@@ -25,14 +26,14 @@ def test_create_and_load_file(clean_file: Path):
 
 @beartype
 @mock.patch("bplustree.tree.BPlusTree.close")
-def test_closing_context_manager(mock_close, clean_file: Path):
+def test_closing_context_manager(mock_close: mock.Mock, clean_file: Path) -> None:
     with BPlusTree(clean_file, page_size=512, value_size=128):
         pass
     mock_close.assert_called_once_with()
 
 
 @beartype
-def test_initial_values(clean_file: Path):
+def test_initial_values(clean_file: Path) -> None:
     btree = BPlusTree(clean_file, page_size=512, value_size=128)
     assert btree._tree_conf.page_size == 512
     assert btree._tree_conf.order == 100
@@ -42,7 +43,7 @@ def test_initial_values(clean_file: Path):
 
 
 @beartype
-def test_partial_constructors(clean_file: Path):
+def test_partial_constructors(clean_file: Path) -> None:
     btree = BPlusTree(clean_file, key_size=16, value_size=16, order=4)
     node = btree.RootNode()
     record = btree.Record()
@@ -52,7 +53,7 @@ def test_partial_constructors(clean_file: Path):
 
 
 @beartype
-def test_insert_setitem_tree(clean_file: Path):
+def test_insert_setitem_tree(clean_file: Path) -> None:
     btree = BPlusTree(clean_file, key_size=16, value_size=16, order=4)
     btree.insert(1, b"foo")
 
@@ -69,7 +70,7 @@ def test_insert_setitem_tree(clean_file: Path):
 
 
 @beartype
-def test_get_tree(clean_file: Path):
+def test_get_tree(clean_file: Path) -> None:
     btree = BPlusTree(clean_file, key_size=16, value_size=16, order=4)
     btree.insert(1, b"foo")
     assert btree.get(1) == b"foo"
@@ -79,7 +80,7 @@ def test_get_tree(clean_file: Path):
 
 
 @beartype
-def test_getitem_tree(clean_file: Path):
+def test_getitem_tree(clean_file: Path) -> None:
     btree = BPlusTree(clean_file, key_size=16, value_size=16, order=4)
     btree.insert(1, b"foo")
     btree.insert(2, b"bar")
@@ -95,7 +96,7 @@ def test_getitem_tree(clean_file: Path):
 
 
 @beartype
-def test_contains_tree(clean_file: Path):
+def test_contains_tree(clean_file: Path) -> None:
     btree = BPlusTree(clean_file, key_size=16, value_size=16, order=4)
     btree.insert(1, b"foo")
     assert 1 in btree
@@ -104,7 +105,7 @@ def test_contains_tree(clean_file: Path):
 
 
 @beartype
-def test_len_tree(clean_file: Path):
+def test_len_tree(clean_file: Path) -> None:
     btree = BPlusTree(clean_file, key_size=16, value_size=16, order=4)
     assert len(btree) == 0
     btree.insert(1, b"foo")
@@ -116,7 +117,7 @@ def test_len_tree(clean_file: Path):
 
 
 @beartype
-def test_length_hint_tree(clean_file: Path):
+def test_length_hint_tree(clean_file: Path) -> None:
     btree = BPlusTree(clean_file, key_size=16, value_size=16, order=100)
     assert btree.__length_hint__() == 49
     btree.insert(1, b"foo")
@@ -128,7 +129,7 @@ def test_length_hint_tree(clean_file: Path):
 
 
 @beartype
-def test_bool_tree(clean_file: Path):
+def test_bool_tree(clean_file: Path) -> None:
     btree = BPlusTree(clean_file, key_size=16, value_size=16, order=4)
     assert not btree
     btree.insert(1, b"foo")
@@ -138,7 +139,7 @@ def test_bool_tree(clean_file: Path):
 
 @beartype
 # sourcery skip: no-loop-in-tests
-def test_iter_keys_values_items_tree(clean_file: Path):
+def test_iter_keys_values_items_tree(clean_file: Path) -> None:
     btree = BPlusTree(clean_file, key_size=16, value_size=16, order=4)
     # Empty tree
     with pytest.raises(StopIteration):
@@ -181,7 +182,7 @@ def test_iter_keys_values_items_tree(clean_file: Path):
 
 
 @beartype
-def test_iter_items_order5(clean_file: Path):
+def test_iter_items_order5(clean_file: Path) -> None:
     # Contains from 10, 20, 30 .. 200
     btree = BPlusTree(clean_file, order=5)
     for i in range(10, 201, 10):
@@ -196,7 +197,7 @@ def test_iter_items_order5(clean_file: Path):
 
 
 @beartype
-def test_checkpoint(clean_file: Path):
+def test_checkpoint(clean_file: Path) -> None:
     btree = BPlusTree(clean_file, key_size=16, value_size=16, order=4)
     btree.checkpoint()
     btree.insert(1, b"foo")
@@ -210,7 +211,7 @@ def test_checkpoint(clean_file: Path):
 
 
 @beartype
-def test_left_record_node_in_tree(clean_file: Path):
+def test_left_record_node_in_tree(clean_file: Path) -> None:
     btree = BPlusTree(clean_file, order=3)
     assert btree._left_record_node == btree._root_node
     assert isinstance(btree._left_record_node, LonelyRootNode)
@@ -222,7 +223,7 @@ def test_left_record_node_in_tree(clean_file: Path):
 
 
 @beartype
-def test_overflow(clean_file: Path):
+def test_overflow(clean_file: Path) -> None:
     btree = BPlusTree(clean_file, key_size=16, value_size=16, order=4)
     data = b"f" * 323343
     with btree._mem.write_transaction:
@@ -244,10 +245,10 @@ def test_overflow(clean_file: Path):
 
 
 @beartype
-def test_batch_insert(clean_file: Path):
+def test_batch_insert(clean_file: Path) -> None:
     btree = BPlusTree(clean_file, key_size=16, value_size=16, order=4)
 
-    def generate(from_, to):
+    def generate(from_: int, to: int) -> Iterator[tuple[int, bytes]]:
         for i in range(from_, to):
             yield i, str(i).encode()
 
@@ -264,7 +265,7 @@ def test_batch_insert(clean_file: Path):
 
 
 @beartype
-def test_batch_insert_no_in_order(clean_file: Path):
+def test_batch_insert_no_in_order(clean_file: Path) -> None:
     btree = BPlusTree(clean_file, key_size=16, value_size=16, order=4)
     with pytest.raises(ValueError):
         btree.batch_insert([(2, b"2"), (1, b"1")])

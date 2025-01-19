@@ -60,7 +60,7 @@ def write_to_file(
     dir_fileno: int | None,
     data: bytes | bytearray,
     fsync: bool = True,
-):
+) -> None:
     length_to_write = len(data)
     written = 0
     while written < length_to_write:
@@ -69,7 +69,7 @@ def write_to_file(
         fsync_file_and_dir(file_fd.fileno(), dir_fileno)
 
 
-def fsync_file_and_dir(file_fileno: int, dir_fileno: int | None):
+def fsync_file_and_dir(file_fileno: int, dir_fileno: int | None) -> None:
     os.fsync(file_fileno)
     if dir_fileno is not None:
         os.fsync(dir_fileno)
@@ -95,13 +95,13 @@ class FakeCache:
     Because cachetools does not work with maxsize=0.
     """
 
-    def get(self, k):
+    def get(self, k: int) -> None:
         pass
 
-    def __setitem__(self, key, value):
+    def __setitem__(self, key: int, value: Node) -> None:
         pass
 
-    def clear(self):
+    def clear(self) -> None:
         pass
 
 
@@ -119,7 +119,9 @@ class FileMemory:
         "_root_node_page",
     ]
 
-    def __init__(self, filepath: Path, tree_conf: TreeConf, cache_size: int = 512):
+    def __init__(
+        self, filepath: Path, tree_conf: TreeConf, cache_size: int = 512
+    ) -> None:
         self._filepath = filepath
         self._tree_conf = tree_conf
         self._lock = rwlock.RWLock()
@@ -144,7 +146,7 @@ class FileMemory:
         # Todo: Remove this, it should only be in Tree
         self._root_node_page = 0
 
-    def get_node(self, page: int):
+    def get_node(self, page: int) -> Node:
         """Get a node from storage.
 
         The cache is not there to prevent hitting the disk, the OS is already
@@ -166,18 +168,18 @@ class FileMemory:
         self._cache[node.page] = node
         return node
 
-    def set_node(self, node: Node):
+    def set_node(self, node: Node) -> None:
         self._wal.set_page(node.page, node.dump())
         self._cache[node.page] = node
 
-    def del_node(self, node: Node):
+    def del_node(self, node: Node) -> None:
         self._insert_in_freelist(node.page)
 
-    def del_page(self, page: int):
+    def del_page(self, page: int) -> None:
         self._insert_in_freelist(page)
 
     @property
-    def read_transaction(self):
+    def read_transaction(self) -> ReadTransaction:
         class ReadTransaction:
             def __enter__(self2):
                 self._lock.reader_lock.acquire()
@@ -188,7 +190,7 @@ class FileMemory:
         return ReadTransaction()
 
     @property
-    def write_transaction(self):
+    def write_transaction(self) -> WriteTransaction:
         class WriteTransaction:
             def __enter__(self2):
                 self._lock.writer_lock.acquire()
@@ -230,7 +232,7 @@ class FileMemory:
 
         return second_to_last_node, last_node
 
-    def _insert_in_freelist(self, page: int):
+    def _insert_in_freelist(self, page: int) -> None:
         """Insert a page at the end of the freelist."""
         _, last_node = self._traverse_free_list()
 
@@ -263,7 +265,7 @@ class FileMemory:
         return last_node.page
 
     # Todo: make metadata as a normal Node
-    def get_metadata(self) -> tuple:
+    def get_metadata(self) -> tuple[int, TreeConf]:
         try:
             data = self._read_page(0)
         except ReachedEndOfFile as e:
@@ -288,7 +290,9 @@ class FileMemory:
         self._root_node_page = root_node_page
         return root_node_page, self._tree_conf
 
-    def set_metadata(self, root_node_page: int | None, tree_conf: TreeConf | None):
+    def set_metadata(
+        self, root_node_page: int | None, tree_conf: TreeConf | None
+    ) -> None:
         if root_node_page is None:
             root_node_page = self._root_node_page
 
@@ -310,13 +314,13 @@ class FileMemory:
         self._tree_conf = tree_conf
         self._root_node_page = root_node_page
 
-    def close(self):
+    def close(self) -> None:
         self.perform_checkpoint()
         self._fd.close()
         if self._dir_fd is not None:
             os.close(self._dir_fd)
 
-    def perform_checkpoint(self, reopen_wal=False):
+    def perform_checkpoint(self, reopen_wal: bool = False) -> None:
         logger.info("Performing checkpoint of %s", self._filepath)
         for page, page_data in self._wal.checkpoint():
             self._write_page_in_tree(page, page_data, fsync=False)
@@ -332,7 +336,7 @@ class FileMemory:
 
     def _write_page_in_tree(
         self, page: int, data: bytes | bytearray, fsync: bool = True
-    ):
+    ) -> None:
         """Write a page of data in the tree file itself.
 
         To be used during checkpoints and other non-standard uses.
@@ -341,7 +345,7 @@ class FileMemory:
         self._fd.seek(page * self._tree_conf.page_size)
         write_to_file(self._fd, self._dir_fd, data, fsync=fsync)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<FileMemory: {self._filepath}>"
 
 
@@ -364,7 +368,7 @@ class WAL:
 
     FRAME_HEADER_LENGTH = FRAME_TYPE_BYTES + PAGE_REFERENCE_BYTES
 
-    def __init__(self, filepath: Path, page_size: int):
+    def __init__(self, filepath: Path, page_size: int) -> None:
         self.filepath = filepath.with_suffix(f"{filepath.suffix}-wal")
         self._fd, self._dir_fd = open_file_in_dir(self.filepath)
         self._page_size = page_size
@@ -382,7 +386,7 @@ class WAL:
             self.needs_recovery = True
             self._load_wal()
 
-    def checkpoint(self):
+    def checkpoint(self) -> None:
         """Transfer the modified data back to the tree and close the WAL."""
         if self._not_committed_pages:
             logger.warning("Closing WAL with uncommitted data, discarding it")
@@ -401,12 +405,12 @@ class WAL:
             os.fsync(self._dir_fd)
             os.close(self._dir_fd)
 
-    def _create_header(self):
+    def _create_header(self) -> None:
         data = self._page_size.to_bytes(OTHERS_BYTES, ENDIAN)
         self._fd.seek(0)
         write_to_file(self._fd, self._dir_fd, data, True)
 
-    def _load_wal(self):
+    def _load_wal(self) -> None:
         self._fd.seek(0)
         header_data = read_from_file(self._fd, 0, OTHERS_BYTES)
         assert int.from_bytes(header_data, ENDIAN) == self._page_size
@@ -420,7 +424,7 @@ class WAL:
             logger.warning("WAL has uncommitted data, discarding it")
             self._not_committed_pages = {}
 
-    def _load_next_frame(self):
+    def _load_next_frame(self) -> None:
         start = self._fd.tell()
         stop = start + self.FRAME_HEADER_LENGTH
         data = read_from_file(self._fd, start, stop)
@@ -436,7 +440,7 @@ class WAL:
 
         self._index_frame(frame_type, page, stop)
 
-    def _index_frame(self, frame_type: FrameType, page: int, page_start: int):
+    def _index_frame(self, frame_type: FrameType, page: int, page_start: int) -> None:
         if frame_type is FrameType.PAGE:
             self._not_committed_pages[page] = page_start
         elif frame_type is FrameType.COMMIT:
@@ -452,7 +456,7 @@ class WAL:
         frame_type: FrameType,
         page: int | None = None,
         page_data: bytes | bytearray | None = None,
-    ):
+    ) -> None:
         if frame_type is FrameType.PAGE and (not page or not page_data):
             raise ValueError("PAGE frame without page data")
         if page_data and len(page_data) != self._page_size:
@@ -482,18 +486,18 @@ class WAL:
 
         return read_from_file(self._fd, page_start, page_start + self._page_size)
 
-    def set_page(self, page: int, page_data: bytes | bytearray):
+    def set_page(self, page: int, page_data: bytes | bytearray) -> None:
         self._add_frame(FrameType.PAGE, page, page_data)
 
-    def commit(self):
+    def commit(self) -> None:
         # Commit is a no-op when there is no uncommitted pages
         if self._not_committed_pages:
             self._add_frame(FrameType.COMMIT)
 
-    def rollback(self):
+    def rollback(self) -> None:
         # Rollback is a no-op when there is no uncommitted pages
         if self._not_committed_pages:
             self._add_frame(FrameType.ROLLBACK)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<WAL: {self.filepath}>"
