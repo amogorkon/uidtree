@@ -40,7 +40,7 @@ setup(
     ],
     keywords="bplustree B+tree Btree database index",
     packages=find_packages(include=("bplustree", "bplustree.*")),
-    install_requires=["rwlock", "cachetools"],
+    install_requires=["rwlock", "cachetools", "beartype"],
     extras_require={
         "tests": ["pytest", "pytest-cov", "python-coveralls", "pycodestyle"],
         "datetime": ["temporenc"],
