@@ -2,9 +2,8 @@ import pytest
 
 from bplustree.const import TreeConf
 from bplustree.entry import NOT_LOADED, OpaqueData, Record, Reference
-from bplustree.serializer import IntSerializer
 
-tree_conf = TreeConf(4096, 4, 16, 16, IntSerializer())
+tree_conf = TreeConf(4096, 4, 16, 16)
 
 
 def test_record_int_serialization():

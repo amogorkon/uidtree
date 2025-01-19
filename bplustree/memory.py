@@ -284,9 +284,7 @@ class FileMemory:
         self._freelist_start_page = int.from_bytes(
             data[end_value_size:end_freelist_start_page], ENDIAN
         )
-        self._tree_conf = TreeConf(
-            page_size, order, key_size, value_size, self._tree_conf.serializer
-        )
+        self._tree_conf = TreeConf(page_size, order, key_size, value_size)
         self._root_node_page = root_node_page
         return root_node_page, self._tree_conf
 

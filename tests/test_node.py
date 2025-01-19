@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 import pytest
 
 from bplustree.const import ENDIAN, TreeConf
@@ -12,9 +13,8 @@ from bplustree.node import (
     OverflowNode,
     RootNode,
 )
-from bplustree.serializer import IntSerializer
 
-tree_conf = TreeConf(4096, 7, 16, 16, IntSerializer())
+tree_conf = TreeConf(4096, 7, 16, 16)
 
 
 @pytest.mark.parametrize(
@@ -31,7 +31,7 @@ tree_conf = TreeConf(4096, 7, 16, 16, IntSerializer())
     ],
 )
 def test_node_limit_children(klass, order, min_children, max_children):
-    node = klass(TreeConf(4096, order, 16, 16, IntSerializer()))
+    node = klass(TreeConf(4096, order, 16, 16))
     assert node.min_children == min_children
     assert node.max_children == max_children
 
@@ -100,7 +100,7 @@ def test_node_slots():
 
 def test_get_node_from_page_data():
     data = (2).to_bytes(1, ENDIAN) + bytes(4096 - 1)
-    tree_conf = TreeConf(4096, 7, 16, 16, IntSerializer())
+    tree_conf = TreeConf(4096, 7, 16, 16)
     assert isinstance(Node.from_page_data(tree_conf, data, 4), RootNode)
 
 

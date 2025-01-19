@@ -1,19 +1,18 @@
 from __future__ import annotations
 
 from collections.abc import Iterable, Iterator
-from datetime import datetime
 from functools import partial
 from logging import getLogger
 from pathlib import Path
 from typing import Tuple
+
+from beartype import beartype
 
 from . import utils
 from .const import TreeConf
 from .entry import OpaqueData, Record, Reference
 from .memory import FileMemory
 from .node import InternalNode, LeafNode, LonelyRootNode, Node, OverflowNode, RootNode
-from .serializer import IntSerializer, Serializer
-from beartype import beartype
 
 logger = getLogger(__name__)
 
@@ -45,12 +44,9 @@ class BPlusTree:
         key_size: int = 8,
         value_size: int = 32,
         cache_size: int = 64,
-        serializer: Serializer | None = None,
     ):
         self._filepath = filepath
-        self._tree_conf = TreeConf(
-            page_size, order, key_size, value_size, serializer or IntSerializer()
-        )
+        self._tree_conf = TreeConf(page_size, order, key_size, value_size)
         self._create_partials()
         self._mem = FileMemory(filepath, self._tree_conf, cache_size=cache_size)
         try:

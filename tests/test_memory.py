@@ -16,9 +16,8 @@ from bplustree.memory import (
     open_file_in_dir,
 )
 from bplustree.node import FreelistNode, LeafNode
-from bplustree.serializer import IntSerializer
 
-tree_conf = TreeConf(4096, 4, 16, 16, IntSerializer())
+tree_conf = TreeConf(4096, 4, 16, 16)
 node = LeafNode(tree_conf, page=3)
 
 

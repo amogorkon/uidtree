@@ -1,17 +1,19 @@
 from __future__ import annotations
+
 import abc
 import bisect
 import math
 
+from beartype import beartype
+
 from .const import (
-    ENDIAN,
     NODE_TYPE_BYTES,
     PAGE_REFERENCE_BYTES,
     USED_PAGE_LENGTH_BYTES,
     TreeConf,
 )
 from .entry import Entry, OpaqueData, Record, Reference
-from beartype import beartype
+from .serializer import deserialize, serialize
 
 
 class Node(metaclass=abc.ABCMeta):
@@ -44,11 +46,9 @@ class Node(metaclass=abc.ABCMeta):
     def load(self, data: bytes | bytearray) -> None:
         assert len(data) == self._tree_conf.page_size
         end_used_page_length = NODE_TYPE_BYTES + USED_PAGE_LENGTH_BYTES
-        used_page_length = int.from_bytes(
-            data[NODE_TYPE_BYTES:end_used_page_length], ENDIAN
-        )
+        used_page_length = deserialize(data[NODE_TYPE_BYTES:end_used_page_length])
         end_header = end_used_page_length + PAGE_REFERENCE_BYTES
-        self.next_page = int.from_bytes(data[end_used_page_length:end_header], ENDIAN)
+        self.next_page = deserialize(data[end_used_page_length:end_header])
         if self.next_page == 0:
             self.next_page = None
 
@@ -82,9 +82,9 @@ class Node(metaclass=abc.ABCMeta):
 
         next_page = 0 if self.next_page is None else self.next_page
         header = (
-            self._node_type_int.to_bytes(1, ENDIAN)
-            + used_page_length.to_bytes(3, ENDIAN)
-            + next_page.to_bytes(PAGE_REFERENCE_BYTES, ENDIAN)
+            serialize(self._node_type_int, 1)
+            + serialize(used_page_length, 3)
+            + serialize(next_page, PAGE_REFERENCE_BYTES)
         )
 
         data = bytearray(header) + data
@@ -179,8 +179,7 @@ class Node(metaclass=abc.ABCMeta):
     def split_entries(self) -> list[Entry]:
         """Split the entries in half.
 
-        Keep the lower part in the node and return the upper one.
-        """
+        Keep the lower part in the node and return the upper one."""
         len_entries = len(self.entries)
         rv = self.entries[len_entries // 2 :]
         self.entries = self.entries[: len_entries // 2]
@@ -193,7 +192,7 @@ class Node(metaclass=abc.ABCMeta):
         cls, tree_conf: TreeConf, data: bytes | bytearray, page: int | None = None
     ) -> Node:
         node_type_byte = data[:NODE_TYPE_BYTES]
-        node_type_int = int.from_bytes(node_type_byte, ENDIAN)
+        node_type_int = deserialize(node_type_byte)
         if node_type_int == 1:
             return LonelyRootNode(tree_conf, data, page)
         elif node_type_int == 2:

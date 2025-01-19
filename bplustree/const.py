@@ -1,4 +1,4 @@
-from typing import Any, NamedTuple
+from typing import NamedTuple
 
 VERSION = "0.0.4.dev1"
 
@@ -32,4 +32,3 @@ class TreeConf(NamedTuple):
     order: int  # Branching factor of the tree
     key_size: int  # Maximum size of a key in bytes
     value_size: int  # Maximum size of a value in bytes
-    serializer: Any  # Instance of a Serializer

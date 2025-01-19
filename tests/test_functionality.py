@@ -3,13 +3,12 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
+from beartype import beartype
 
 from bplustree.const import TreeConf
 from bplustree.memory import FileMemory, ReachedEndOfFile
 from bplustree.node import LeafNode
-from bplustree.serializer import IntSerializer
 from bplustree.tree import BPlusTree
-from beartype import beartype
 
 
 @beartype
@@ -48,7 +47,7 @@ def test_batch_insert(clean_file: Path) -> None:
 
 @beartype
 def test_file_memory_node(clean_file: Path) -> None:
-    tree_conf = TreeConf(4096, 4, 16, 16, IntSerializer())
+    tree_conf = TreeConf(4096, 4, 16, 16)
     node = LeafNode(tree_conf, page=3)
     mem = FileMemory(clean_file, tree_conf)
     with pytest.raises(ReachedEndOfFile):

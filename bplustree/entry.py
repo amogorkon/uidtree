@@ -8,6 +8,7 @@ from .const import (
     USED_VALUE_LENGTH_BYTES,
     TreeConf,
 )
+from .serializer import deserialize, serialize
 
 # Sentinel value indicating that a lazy loaded attribute is not yet loaded
 NOT_LOADED = object()
@@ -119,9 +120,7 @@ class Record(ComparableEntry):
         assert 0 <= used_key_length <= self._tree_conf.key_size
 
         end_key = end_used_key_length + used_key_length
-        self._key = self._tree_conf.serializer.deserialize(
-            data[end_used_key_length:end_key]
-        )
+        self._key = deserialize(data[end_used_key_length:end_key])
 
         start_used_value_length = end_used_key_length + self._tree_conf.key_size
         end_used_value_length = start_used_value_length + USED_VALUE_LENGTH_BYTES
@@ -146,9 +145,7 @@ class Record(ComparableEntry):
             return self._data
 
         assert self._value is None or self._overflow_page is None
-        key_as_bytes = self._tree_conf.serializer.serialize(
-            self._key, self._tree_conf.key_size
-        )
+        key_as_bytes = serialize(self._key, self._tree_conf.key_size)
         used_key_length = len(key_as_bytes)
         overflow_page = self._overflow_page or 0
         value = b"" if overflow_page else self._value
@@ -243,9 +240,7 @@ class Reference(ComparableEntry):
         assert 0 <= used_key_length <= self._tree_conf.key_size
 
         end_key = end_used_key_length + used_key_length
-        self._key = self._tree_conf.serializer.deserialize(
-            data[end_used_key_length:end_key]
-        )
+        self._key = deserialize(data[end_used_key_length:end_key])
 
         start_after = end_used_key_length + self._tree_conf.key_size
         end_after = start_after + PAGE_REFERENCE_BYTES
@@ -258,9 +253,7 @@ class Reference(ComparableEntry):
         assert isinstance(self._before, int)
         assert isinstance(self._after, int)
 
-        key_as_bytes = self._tree_conf.serializer.serialize(
-            self._key, self._tree_conf.key_size
-        )
+        key_as_bytes = serialize(self._key, self._tree_conf.key_size)
         used_key_length = len(key_as_bytes)
 
         return (
