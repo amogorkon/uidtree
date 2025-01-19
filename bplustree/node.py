@@ -114,7 +114,7 @@ class Node(metaclass=abc.ABCMeta):
 
     @property
     @beartype
-    def smallest_key(self) -> object:
+    def smallest_key(self) -> int:
         return self.smallest_entry.key
 
     @property
@@ -124,7 +124,7 @@ class Node(metaclass=abc.ABCMeta):
 
     @property
     @beartype
-    def biggest_key(self) -> object:
+    def biggest_key(self) -> int:
         return self.biggest_entry.key
 
     @property
@@ -157,15 +157,15 @@ class Node(metaclass=abc.ABCMeta):
         self.entries.append(entry)
 
     @beartype
-    def remove_entry(self, key: object) -> None:
+    def remove_entry(self, key: int) -> None:
         self.entries.pop(self._find_entry_index(key))
 
     @beartype
-    def get_entry(self, key: object) -> Entry:
+    def get_entry(self, key: int) -> Entry:
         return self.entries[self._find_entry_index(key)]
 
     @beartype
-    def _find_entry_index(self, key: object) -> int:
+    def _find_entry_index(self, key: int) -> int:
         entry = self._entry_class(
             self._tree_conf,
             key=key,  # Hack to compare and order

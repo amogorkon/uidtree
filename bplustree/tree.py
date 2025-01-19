@@ -6,7 +6,6 @@ from functools import partial
 from logging import getLogger
 from pathlib import Path
 from typing import Tuple
-from uuid import UUID
 
 from . import utils
 from .const import TreeConf
@@ -86,7 +85,7 @@ class BPlusTree:
             self._mem.perform_checkpoint(reopen_wal=True)
 
     @beartype
-    def insert(self, key: int | str | UUID | datetime, value: bytes, replace=False):
+    def insert(self, key: int, value: bytes, replace=False):
         """Insert a value in the tree.
 
         :param key: The key at which the value will be recorded, must be of the
@@ -138,9 +137,7 @@ class BPlusTree:
                 self._split_leaf(node)
 
     @beartype
-    def batch_insert(
-        self, iterable: Iterable[tuple[int | str | UUID | datetime, bytes]]
-    ):
+    def batch_insert(self, iterable: Iterable[tuple[int, bytes]]):
         """Insert many elements in the tree at once.
 
         The iterable object must yield tuples (key, value) in ascending order.
@@ -187,7 +184,7 @@ class BPlusTree:
     @beartype
     def get(
         self,
-        key: int | str | UUID | datetime,
+        key: int,
         default: bytes | None = None,
     ) -> bytes | None:
         with self._mem.read_transaction:
@@ -262,9 +259,7 @@ class BPlusTree:
     keys = __iter__
 
     @beartype
-    def items(
-        self, slice_: slice | None = None
-    ) -> Iterator[Tuple[int | str | UUID | datetime, bytes]]:
+    def items(self, slice_: slice | None = None) -> Iterator[Tuple[int, bytes]]:
         if not slice_:
             slice_ = slice(None)
         with self._mem.read_transaction:
@@ -357,7 +352,7 @@ class BPlusTree:
                 return
 
     @beartype
-    def _search_in_tree(self, key: int | str | UUID | datetime, node: Node) -> Node:
+    def _search_in_tree(self, key: int, node: Node) -> Node:
         if isinstance(node, (LonelyRootNode, LeafNode)):
             return node
 

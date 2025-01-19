@@ -2,24 +2,13 @@ import pytest
 
 from bplustree.const import TreeConf
 from bplustree.entry import NOT_LOADED, OpaqueData, Record, Reference
-from bplustree.serializer import IntSerializer, StrSerializer
+from bplustree.serializer import IntSerializer
 
 tree_conf = TreeConf(4096, 4, 16, 16, IntSerializer())
 
 
 def test_record_int_serialization():
     r1 = Record(tree_conf, 42, b"foo")
-    data = r1.dump()
-
-    r2 = Record(tree_conf, data=data)
-    assert r1 == r2
-    assert r1.value == r2.value
-    assert r1.overflow_page == r2.overflow_page
-
-
-def test_record_str_serialization():
-    tree_conf = TreeConf(4096, 4, 40, 40, StrSerializer())
-    r1 = Record(tree_conf, "0", b"0")
     data = r1.dump()
 
     r2 = Record(tree_conf, data=data)
@@ -77,17 +66,6 @@ def test_record_lazy_load():
 
 def test_reference_int_serialization():
     r1 = Reference(tree_conf, 42, 1, 2)
-    data = r1.dump()
-
-    r2 = Reference(tree_conf, data=data)
-    assert r1 == r2
-    assert r1.before == r2.before
-    assert r1.after == r2.after
-
-
-def test_reference_str_serialization():
-    tree_conf = TreeConf(4096, 4, 40, 40, StrSerializer())
-    r1 = Reference(tree_conf, "foo", 1, 2)
     data = r1.dump()
 
     r2 = Reference(tree_conf, data=data)
