@@ -12,7 +12,7 @@ index_path = index_dir / "bplustree-testfile.index"
 
 
 @pytest.fixture
-def clean_file(tmp_path) -> Generator[Path, None, None]:
+def clean_file(tmp_path: Path) -> Generator[Path, None, None]:
     unique_index_path = tmp_path / f"bplustree-testfile-{uuid.uuid4()}.index"
     wal_path = unique_index_path.with_name(f"{unique_index_path.name}-wal")
 
