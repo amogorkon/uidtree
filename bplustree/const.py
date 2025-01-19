@@ -1,9 +1,9 @@
-from collections import namedtuple
+from typing import Any, NamedTuple
 
-VERSION = '0.0.4.dev1'
+VERSION = "0.0.4.dev1"
 
 # Endianess for storing numbers
-ENDIAN = 'little'
+ENDIAN = "little"
 
 # Bytes used for storing references to pages
 # Can address 16 TB of memory with 4 KB pages
@@ -27,10 +27,9 @@ FRAME_TYPE_BYTES = 1
 OTHERS_BYTES = 4
 
 
-TreeConf = namedtuple('TreeConf', [
-    'page_size',   # Size of a page within the tree in bytes
-    'order',       # Branching factor of the tree
-    'key_size',    # Maximum size of a key in bytes
-    'value_size',  # Maximum size of a value in bytes
-    'serializer',  # Instance of a Serializer
-])
+class TreeConf(NamedTuple):
+    page_size: int  # Size of a page within the tree in bytes
+    order: int  # Branching factor of the tree
+    key_size: int  # Maximum size of a key in bytes
+    value_size: int  # Maximum size of a value in bytes
+    serializer: Any  # Instance of a Serializer

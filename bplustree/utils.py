@@ -1,8 +1,8 @@
 import itertools
-from typing import Iterable
+from typing import Iterable, Iterator, Tuple
 
 
-def pairwise(iterable: Iterable):
+def pairwise(iterable: Iterable) -> Iterator[Tuple]:
     """Iterate over elements two by two.
 
     s -> (s0,s1), (s1,s2), (s2, s3), ...
@@ -12,7 +12,7 @@ def pairwise(iterable: Iterable):
     return zip(a, b)
 
 
-def iter_slice(iterable: bytes, n: int):
+def iter_slice(iterable: bytes, n: int) -> Iterator[Tuple[bytes, bool]]:
     """Yield slices of size n and says if each slice is the last one.
 
     s -> (b'123', False), (b'45', True)

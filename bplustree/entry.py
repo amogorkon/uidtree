@@ -1,4 +1,5 @@
 import abc
+from typing import Any
 
 from .const import (
     ENDIAN,
@@ -16,7 +17,7 @@ class Entry(metaclass=abc.ABCMeta):
     __slots__ = []
 
     @abc.abstractmethod
-    def load(self, data: bytes):
+    def load(self, data: bytes) -> None:
         """Deserialize data into an object."""
 
     @abc.abstractmethod
@@ -29,19 +30,19 @@ class ComparableEntry(Entry, metaclass=abc.ABCMeta):
 
     __slots__ = []
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         return self.key == other.key
 
-    def __lt__(self, other):
+    def __lt__(self, other) -> bool:
         return self.key < other.key
 
-    def __le__(self, other):
+    def __le__(self, other) -> bool:
         return self.key <= other.key
 
-    def __gt__(self, other):
+    def __gt__(self, other) -> bool:
         return self.key > other.key
 
-    def __ge__(self, other):
+    def __ge__(self, other) -> bool:
         return self.key >= other.key
 
 
@@ -53,11 +54,11 @@ class Record(ComparableEntry):
     def __init__(
         self,
         tree_conf: TreeConf,
-        key=None,
+        key: Any = None,
         value: bytes | None = None,
         data: bytes | None = None,
         overflow_page: int | None = None,
-    ):
+    ) -> None:
         self._tree_conf = tree_conf
         self.length = (
             USED_KEY_LENGTH_BYTES
@@ -78,39 +79,39 @@ class Record(ComparableEntry):
             self._overflow_page = overflow_page
 
     @property
-    def key(self):
+    def key(self) -> Any:
         if self._key == NOT_LOADED:
             self.load(self._data)
         return self._key
 
     @key.setter
-    def key(self, v):
+    def key(self, v: Any) -> None:
         self._data = None
         self._key = v
 
     @property
-    def value(self):
+    def value(self) -> bytes | None:
         if self._value == NOT_LOADED:
             self.load(self._data)
         return self._value
 
     @value.setter
-    def value(self, v):
+    def value(self, v: bytes | None) -> None:
         self._data = None
         self._value = v
 
     @property
-    def overflow_page(self):
+    def overflow_page(self) -> int | None:
         if self._overflow_page == NOT_LOADED:
             self.load(self._data)
         return self._overflow_page
 
     @overflow_page.setter
-    def overflow_page(self, v):
+    def overflow_page(self, v: int | None) -> None:
         self._data = None
         self._overflow_page = v
 
-    def load(self, data: bytes):
+    def load(self, data: bytes) -> None:
         assert len(data) == self.length
 
         end_used_key_length = USED_KEY_LENGTH_BYTES
@@ -163,7 +164,7 @@ class Record(ComparableEntry):
             + overflow_page.to_bytes(PAGE_REFERENCE_BYTES, ENDIAN)
         )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         if self.overflow_page:
             return f"<Record: {self.key} overflowing value>"
         if self.value:
@@ -177,8 +178,13 @@ class Reference(ComparableEntry):
     __slots__ = ["_tree_conf", "length", "_key", "_before", "_after", "_data"]
 
     def __init__(
-        self, tree_conf: TreeConf, key=None, before=None, after=None, data: bytes = None
-    ):
+        self,
+        tree_conf: TreeConf,
+        key: Any = None,
+        before: int | None = None,
+        after: int | None = None,
+        data: bytes | None = None,
+    ) -> None:
         self._tree_conf = tree_conf
         self.length = (
             2 * PAGE_REFERENCE_BYTES + USED_KEY_LENGTH_BYTES + self._tree_conf.key_size
@@ -195,39 +201,39 @@ class Reference(ComparableEntry):
             self._after = after
 
     @property
-    def key(self):
+    def key(self) -> Any:
         if self._key == NOT_LOADED:
             self.load(self._data)
         return self._key
 
     @key.setter
-    def key(self, v):
+    def key(self, v: Any) -> None:
         self._data = None
         self._key = v
 
     @property
-    def before(self):
+    def before(self) -> int:
         if self._before == NOT_LOADED:
             self.load(self._data)
         return self._before
 
     @before.setter
-    def before(self, v):
+    def before(self, v: int) -> None:
         self._data = None
         self._before = v
 
     @property
-    def after(self):
+    def after(self) -> int:
         if self._after == NOT_LOADED:
             self.load(self._data)
         return self._after
 
     @after.setter
-    def after(self, v):
+    def after(self, v: int) -> None:
         self._data = None
         self._after = v
 
-    def load(self, data: bytes):
+    def load(self, data: bytes) -> None:
         assert len(data) == self.length
         end_before = PAGE_REFERENCE_BYTES
         self._before = int.from_bytes(data[:end_before], ENDIAN)
@@ -265,7 +271,7 @@ class Reference(ComparableEntry):
             + self._after.to_bytes(PAGE_REFERENCE_BYTES, ENDIAN)
         )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<Reference: key={self.key} before={self.before} after={self.after}>"
 
 
@@ -274,14 +280,16 @@ class OpaqueData(Entry):
 
     __slots__ = ["data"]
 
-    def __init__(self, tree_conf: TreeConf = None, data: bytes = None):
+    def __init__(
+        self, tree_conf: TreeConf | None = None, data: bytes | None = None
+    ) -> None:
         self.data = data
 
-    def load(self, data: bytes):
+    def load(self, data: bytes) -> None:
         self.data = data
 
     def dump(self) -> bytes:
         return self.data
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<OpaqueData: {self.data}>"
