@@ -4,6 +4,6 @@ from bplustree.serializer import (
 )
 
 
-def test_int_serializer():
+def test_int_serializer() -> None:
     assert serialize(42, 2) == b"*\x00"
     assert deserialize(b"*\x00") == 42

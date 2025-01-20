@@ -35,7 +35,7 @@ class Node(metaclass=abc.ABCMeta):
         next_page: int | None = None,
     ) -> None:
         self._tree_conf = tree_conf
-        self.entries = []
+        self.entries: list[Entry] = []
         self.page = page
         self.parent = parent
         self.next_page = next_page

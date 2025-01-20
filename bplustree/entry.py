@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import abc
 from typing import Any
 
@@ -10,8 +12,10 @@ from .const import (
 )
 from .serializer import deserialize, serialize
 
+
 # Sentinel value indicating that a lazy loaded attribute is not yet loaded
-NOT_LOADED = object()
+class NOT_LOADED:
+    pass
 
 
 class Entry(metaclass=abc.ABCMeta):
@@ -31,19 +35,19 @@ class ComparableEntry(Entry, metaclass=abc.ABCMeta):
 
     __slots__ = []
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: ComparableEntry) -> bool:
         return self.key == other.key
 
-    def __lt__(self, other) -> bool:
+    def __lt__(self, other: ComparableEntry) -> bool:
         return self.key < other.key
 
-    def __le__(self, other) -> bool:
+    def __le__(self, other: ComparableEntry) -> bool:
         return self.key <= other.key
 
-    def __gt__(self, other) -> bool:
+    def __gt__(self, other: ComparableEntry) -> bool:
         return self.key > other.key
 
-    def __ge__(self, other) -> bool:
+    def __ge__(self, other: ComparableEntry) -> bool:
         return self.key >= other.key
 
 
@@ -55,7 +59,7 @@ class Record(ComparableEntry):
     def __init__(
         self,
         tree_conf: TreeConf,
-        key: Any = None,
+        key: int | None = None,
         value: bytes | None = None,
         data: bytes | None = None,
         overflow_page: int | None = None,
@@ -177,7 +181,7 @@ class Reference(ComparableEntry):
     def __init__(
         self,
         tree_conf: TreeConf,
-        key: Any = None,
+        key: int | None = None,
         before: int | None = None,
         after: int | None = None,
         data: bytes | None = None,

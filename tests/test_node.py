@@ -30,7 +30,9 @@ tree_conf = TreeConf(4096, 7, 16, 16)
         (LeafNode, 100, 49, 99),
     ],
 )
-def test_node_limit_children(klass, order, min_children, max_children):
+def test_node_limit_children(
+    klass: type[Node], order: int, min_children: int, max_children: int
+) -> None:
     node = klass(TreeConf(4096, order, 16, 16))
     assert node.min_children == min_children
     assert node.max_children == max_children
@@ -45,7 +47,7 @@ def test_node_limit_children(klass, order, min_children, max_children):
         LonelyRootNode,
     ],
 )
-def test_empty_node_serialization(klass):
+def test_empty_node_serialization(klass: type[Node]) -> None:
     n1 = klass(tree_conf)
     data = n1.dump()
 
@@ -57,7 +59,7 @@ def test_empty_node_serialization(klass):
     assert n1.entries == n3.entries
 
 
-def test_leaf_node_serialization():
+def test_leaf_node_serialization() -> None:
     n1 = LeafNode(tree_conf, next_page=66)
     n1.insert_entry(Record(tree_conf, 43, b"43"))
     n1.insert_entry(Record(tree_conf, 42, b"42"))
@@ -69,7 +71,7 @@ def test_leaf_node_serialization():
     assert n1.next_page == n2.next_page == 66
 
 
-def test_leaf_node_serialization_no_next_page():
+def test_leaf_node_serialization_no_next_page() -> None:
     n1 = LeafNode(tree_conf)
     data = n1.dump()
 
@@ -77,7 +79,7 @@ def test_leaf_node_serialization_no_next_page():
     assert n1.next_page is n2.next_page is None
 
 
-def test_root_node_serialization():
+def test_root_node_serialization() -> None:
     n1 = RootNode(tree_conf)
     n1.insert_entry(Reference(tree_conf, 43, 2, 3))
     n1.insert_entry(Reference(tree_conf, 42, 1, 2))
@@ -92,19 +94,19 @@ def test_root_node_serialization():
     assert n1.next_page is n2.next_page is None
 
 
-def test_node_slots():
+def test_node_slots() -> None:
     n1 = RootNode(tree_conf)
     with pytest.raises(AttributeError):
         n1.foo = True
 
 
-def test_get_node_from_page_data():
+def test_get_node_from_page_data() -> None:
     data = (2).to_bytes(1, ENDIAN) + bytes(4096 - 1)
     tree_conf = TreeConf(4096, 7, 16, 16)
     assert isinstance(Node.from_page_data(tree_conf, data, 4), RootNode)
 
 
-def test_insert_find_get_remove_entries():
+def test_insert_find_get_remove_entries() -> None:
     node = RootNode(tree_conf)
 
     # Test empty _find_entry_index, get and remove
@@ -135,7 +137,7 @@ def test_insert_find_get_remove_entries():
     assert node.entries == []
 
 
-def test_smallest_biggest():
+def test_smallest_biggest() -> None:
     node = RootNode(tree_conf)
 
     with pytest.raises(IndexError):
@@ -157,7 +159,7 @@ def test_smallest_biggest():
     assert node.entries == [r43]
 
 
-def test_freelist_node_serialization():
+def test_freelist_node_serialization() -> None:
     n1 = FreelistNode(tree_conf, next_page=3)
     data = n1.dump()
 
@@ -165,7 +167,7 @@ def test_freelist_node_serialization():
     assert n1.next_page == n2.next_page
 
 
-def test_freelist_node_serialization_no_next_page():
+def test_freelist_node_serialization_no_next_page() -> None:
     n1 = FreelistNode(tree_conf, next_page=None)
     data = n1.dump()
 
@@ -173,7 +175,7 @@ def test_freelist_node_serialization_no_next_page():
     assert n1.next_page is n2.next_page is None
 
 
-def test_overflow_node_serialization():
+def test_overflow_node_serialization() -> None:
     n1 = OverflowNode(tree_conf, next_page=3)
     n1.insert_entry_at_the_end(OpaqueData(data=b"foo"))
     data = n1.dump()
@@ -182,7 +184,7 @@ def test_overflow_node_serialization():
     assert n1.next_page == n2.next_page
 
 
-def test_overflow_node_serialization_no_next_page():
+def test_overflow_node_serialization_no_next_page() -> None:
     n1 = OverflowNode(tree_conf, next_page=None)
     n1.insert_entry_at_the_end(OpaqueData(data=b"foo"))
     data = n1.dump()
