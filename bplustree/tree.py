@@ -71,8 +71,7 @@ class BPlusTree:
     def __enter__(self):
         return self
 
-    @beartype
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(self, exc_type, exc_val, exc_tb):  # type: ignore
         self.close()
 
     @beartype
@@ -81,7 +80,7 @@ class BPlusTree:
             self._mem.perform_checkpoint(reopen_wal=True)
 
     @beartype
-    def insert(self, key: int, value: bytes, replace=False):
+    def insert(self, key: int, value: bytes, replace: bool = False):
         """Insert a value in the tree.
 
         :param key: The key at which the value will be recorded, must be of the

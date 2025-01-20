@@ -7,8 +7,8 @@ import platform
 from logging import getLogger
 from pathlib import Path
 
-import cachetools
 import rwlock
+from cachetools import LRUCache
 
 from .const import (
     ENDIAN,
@@ -89,22 +89,6 @@ def read_from_file(file_fd: io.FileIO, start: int, stop: int) -> bytes:
     return data
 
 
-class FakeCache:
-    """A cache that doesn't cache anything.
-
-    Because cachetools does not work with maxsize=0.
-    """
-
-    def get(self, k: int) -> None:
-        pass
-
-    def __setitem__(self, key: int, value: Node) -> None:
-        pass
-
-    def clear(self) -> None:
-        pass
-
-
 class FileMemory:
     __slots__ = [
         "_filepath",
@@ -126,10 +110,7 @@ class FileMemory:
         self._tree_conf = tree_conf
         self._lock = rwlock.RWLock()
 
-        if cache_size == 0:
-            self._cache = FakeCache()
-        else:
-            self._cache = cachetools.LRUCache(maxsize=cache_size)
+        self._cache: LRUCache[int, Node | None] = LRUCache(maxsize=cache_size)
 
         self._fd, self._dir_fd = open_file_in_dir(filepath)
 
@@ -180,14 +161,7 @@ class FileMemory:
 
     @property
     def read_transaction(self) -> ReadTransaction:
-        class ReadTransaction:
-            def __enter__(self2):
-                self._lock.reader_lock.acquire()
-
-            def __exit__(self2, exc_type, exc_val, exc_tb):
-                self._lock.reader_lock.release()
-
-        return ReadTransaction()
+        return ReadTransaction(self._lock)
 
     @property
     def write_transaction(self) -> WriteTransaction:
@@ -357,6 +331,17 @@ class WriteTransaction:
         else:
             self._wal.commit()
         self._lock.writer_lock.release()
+
+
+class ReadTransaction:
+    def __init__(self, lock):
+        self._lock = lock
+
+    def __enter__(self):
+        self._lock.reader_lock.acquire()
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self._lock.reader_lock.release()
 
 
 class WAL:
