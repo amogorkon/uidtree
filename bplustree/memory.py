@@ -191,22 +191,7 @@ class FileMemory:
 
     @property
     def write_transaction(self) -> WriteTransaction:
-        class WriteTransaction:
-            def __enter__(self2):
-                self._lock.writer_lock.acquire()
-
-            def __exit__(self2, exc_type, exc_val, exc_tb):
-                if exc_type:
-                    # When an error happens in the middle of a write
-                    # transaction we must roll it back and clear the cache
-                    # because the writer may have partially modified the Nodes
-                    self._wal.rollback()
-                    self._cache.clear()
-                else:
-                    self._wal.commit()
-                self._lock.writer_lock.release()
-
-        return WriteTransaction()
+        return WriteTransaction(self._lock, self._wal, self._cache)
 
     @property
     def next_available_page(self) -> int:
@@ -351,6 +336,27 @@ class FrameType(enum.Enum):
     PAGE = 1
     COMMIT = 2
     ROLLBACK = 3
+
+
+class WriteTransaction:
+    def __init__(self, lock, wal, cache):
+        self._lock = lock
+        self._wal = wal
+        self._cache = cache
+
+    def __enter__(self):
+        self._lock.writer_lock.acquire()
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if exc_type:
+            # When an error happens in the middle of a write
+            # transaction we must roll it back and clear the cache
+            # because the writer may have partially modified the Nodes
+            self._wal.rollback()
+            self._cache.clear()
+        else:
+            self._wal.commit()
+        self._lock.writer_lock.release()
 
 
 class WAL:
