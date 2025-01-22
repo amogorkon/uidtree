@@ -13,11 +13,6 @@ from .const import (
 from .serializer import deserialize, serialize
 
 
-# Sentinel value indicating that a lazy loaded attribute is not yet loaded
-class NOT_LOADED:
-    pass
-
-
 class Entry(metaclass=abc.ABCMeta):
     __slots__ = []
 
@@ -75,9 +70,9 @@ class Record(ComparableEntry):
         self._data = data
 
         if self._data:
-            self._key = NOT_LOADED
-            self._value = NOT_LOADED
-            self._overflow_page = NOT_LOADED
+            self._key = ...
+            self._value = ...
+            self._overflow_page = ...
         else:
             self._key = key
             self._value = value
@@ -85,7 +80,7 @@ class Record(ComparableEntry):
 
     @property
     def key(self) -> Any:
-        if self._key == NOT_LOADED:
+        if self._key == ...:
             self.load(self._data)
         return self._key
 
@@ -96,7 +91,7 @@ class Record(ComparableEntry):
 
     @property
     def value(self) -> bytes | None:
-        if self._value == NOT_LOADED:
+        if self._value == ...:
             self.load(self._data)
         return self._value
 
@@ -107,7 +102,7 @@ class Record(ComparableEntry):
 
     @property
     def overflow_page(self) -> int | None:
-        if self._overflow_page == NOT_LOADED:
+        if self._overflow_page == ...:
             self.load(self._data)
         return self._overflow_page
 
@@ -193,9 +188,9 @@ class Reference(ComparableEntry):
         self._data = data
 
         if self._data:
-            self._key = NOT_LOADED
-            self._before = NOT_LOADED
-            self._after = NOT_LOADED
+            self._key = ...
+            self._before = ...
+            self._after = ...
         else:
             self._key = key
             self._before = before
@@ -203,7 +198,7 @@ class Reference(ComparableEntry):
 
     @property
     def key(self) -> Any:
-        if self._key == NOT_LOADED:
+        if self._key == ...:
             self.load(self._data)
         return self._key
 
@@ -214,7 +209,7 @@ class Reference(ComparableEntry):
 
     @property
     def before(self) -> int:
-        if self._before == NOT_LOADED:
+        if self._before == ...:
             self.load(self._data)
         return self._before
 
@@ -225,7 +220,7 @@ class Reference(ComparableEntry):
 
     @property
     def after(self) -> int:
-        if self._after == NOT_LOADED:
+        if self._after == ...:
             self.load(self._data)
         return self._after
 
