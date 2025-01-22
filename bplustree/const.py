@@ -30,5 +30,5 @@ OTHERS_BYTES = 4
 class TreeConf(NamedTuple):
     page_size: int  # Size of a page within the tree in bytes
     order: int  # Branching factor of the tree
-    key_size: int  # Maximum size of a key in bytes
-    value_size: int  # Maximum size of a value in bytes
+    key_size: int = 16  # Maximum size of a key in bytes (128-bit)
+    value_size: int = 16  # Maximum size of a value in bytes (128-bit)

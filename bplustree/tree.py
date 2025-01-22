@@ -41,7 +41,7 @@ class BPlusTree:
         filepath: Path,
         page_size: int = 4096,
         order: int = 100,
-        key_size: int = 8,
+        key_size: int = 16,  # 128-bit keys
         value_size: int = 32,
         cache_size: int = 64,
     ):
@@ -194,16 +194,16 @@ class BPlusTree:
                 return rv
 
     @beartype
-    def __contains__(self, item):
+    def __contains__(self, item: int) -> bool:
         with self._mem.read_transaction:
             return self.get(item) is not None
 
     @beartype
-    def __setitem__(self, key, value):
+    def __setitem__(self, key: int, value: bytes):
         self.insert(key, value, replace=True)
 
     @beartype
-    def __getitem__(self, item):
+    def __getitem__(self, item: int | slice) -> dict[int, bytes] | bytes:
         with self._mem.read_transaction:
             if isinstance(item, slice):
                 rv = {

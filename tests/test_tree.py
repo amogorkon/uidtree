@@ -5,10 +5,11 @@ from typing import Iterator
 from unittest import mock
 
 import pytest
+from beartype import beartype
+
 from bplustree.memory import FileMemory
 from bplustree.node import LeafNode, LonelyRootNode
 from bplustree.tree import BPlusTree
-from beartype import beartype
 
 
 @beartype
@@ -37,7 +38,7 @@ def test_initial_values(clean_file: Path) -> None:
     btree = BPlusTree(clean_file, page_size=512, value_size=128)
     assert btree._tree_conf.page_size == 512
     assert btree._tree_conf.order == 100
-    assert btree._tree_conf.key_size == 8
+    assert btree._tree_conf.key_size == 16
     assert btree._tree_conf.value_size == 128
     btree.close()
 

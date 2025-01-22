@@ -1,7 +1,7 @@
 import pytest
 
 from bplustree.const import TreeConf
-from bplustree.entry import NOT_LOADED, OpaqueData, Record, Reference
+from bplustree.entry import OpaqueData, Record, Reference
 
 tree_conf = TreeConf(4096, 4, 16, 16)
 
@@ -48,9 +48,9 @@ def test_record_lazy_load():
     r = Record(tree_conf, data=data)
 
     assert r._data == data
-    assert r._key == NOT_LOADED
-    assert r._value == NOT_LOADED
-    assert r._overflow_page == NOT_LOADED
+    assert r._key == ...
+    assert r._value == ...
+    assert r._overflow_page == ...
 
     _ = r.key
     assert r._key == 42
@@ -83,9 +83,9 @@ def test_reference_lazy_load():
     r = Reference(tree_conf, data=data)
 
     assert r._data == data
-    assert r._key == NOT_LOADED
-    assert r._before == NOT_LOADED
-    assert r._after == NOT_LOADED
+    assert r._key == ...
+    assert r._before == ...
+    assert r._after == ...
 
     _ = r.key
     assert r._key == 42
