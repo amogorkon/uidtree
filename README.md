@@ -10,32 +10,10 @@ An on-disk B+tree for Python 3.
 
 It feels like a dict, but stored on disk. When to use it?
 
-- When the data to store does not fit in memory
-- When the data needs to be persisted
-- When keeping the keys in order is important
 
 This project is under development: the format of the file may change between
 versions. Do not use as your primary source of data.
 
-Quickstart
-----------
-
-Install Bplustree with pip::
-
-   pip install bplustree
-
-Create a B+tree index stored on a file and use it with:
-
-.. code:: python
-
-    >>> from bplustree import BPlusTree
-    >>> tree = BPlusTree('/tmp/bplustree.db', order=50)
-    >>> tree[1] = b'foo'
-    >>> tree[2] = b'bar'
-    >>> tree[1]
-    b'foo'
-    >>> tree.get(3)
-    >>> tree.close()
 
 Keys and values
 ---------------
@@ -56,44 +34,6 @@ Values on the other hand are always bytes. They can be of arbitrary length,
 the parameter ``value_size=128`` defines the upper bound of value sizes that
 can be stored in the tree itself. Values exceeding this limit are stored in
 overflow pages. Each overflowing value occupies at least a full page.
-
-Iterating
----------
-
-Since keys are kept in order, it is very efficient to retrieve elements in
-order:
-
-.. code:: python
-
-    >>> for i in tree:
-    ...     print(i)
-    ...
-    1
-    2
-    >>> for key, value in tree.items():
-    ...     print(key, value)
-    ...
-    1 b'foo'
-    2 b'bar'
-
-It is also possible to iterate over a subset of the tree by giving a Python
-slice:
-
-.. code:: python
-
-    >>> for key, value in tree.items(slice(start=0, stop=10)):
-    ...     print(key, value)
-    ...
-    1 b'foo'
-    2 b'bar'
-
-Both methods use a generator so they don't require loading the whole content
-in memory, but copying a slice of the tree into a dict is also possible:
-
-.. code:: python
-
-    >>> tree[0:10]
-    {1: b'foo', 2: b'bar'}
 
 
 Concurrency
@@ -145,8 +85,3 @@ Some advices to efficiently use the tree:
   prevent the WAL from growing unbounded
 - Use small keys and values, set their limit and overflow values accordingly
 - Store the file and WAL on a fast disk
-
-License
--------
-
-MIT
