@@ -12,6 +12,8 @@ from .const import (
 )
 from .serializer import deserialize, serialize
 
+from triplestore.classes import E
+
 
 class Entry(metaclass=abc.ABCMeta):
     __slots__ = []
