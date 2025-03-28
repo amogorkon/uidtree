@@ -44,7 +44,7 @@ class BPlusTree:
         key_size: int = 16,  # 128-bit keys
         value_size: int = 32,
         cache_size: int = 64,
-    ):
+    ) -> None:
         self._filepath = filepath
         self._tree_conf = TreeConf(page_size, order, key_size, value_size)
         self._create_partials()
@@ -58,7 +58,7 @@ class BPlusTree:
         self._is_open = True
 
     @beartype
-    def close(self):
+    def close(self) -> None:
         with self._mem.write_transaction:
             if not self._is_open:
                 logger.info("Tree is already closed")
@@ -68,19 +68,19 @@ class BPlusTree:
             self._is_open = False
 
     @beartype
-    def __enter__(self):
+    def __enter__(self) -> BPlusTree:
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):  # type: ignore
         self.close()
 
     @beartype
-    def checkpoint(self):
+    def checkpoint(self) -> None:
         with self._mem.write_transaction:
             self._mem.perform_checkpoint(reopen_wal=True)
 
     @beartype
-    def insert(self, key: int, value: bytes, replace: bool = False):
+    def insert(self, key: int, value: bytes, replace: bool = False) -> None:
         """Insert a value in the tree.
 
         :param key: The key at which the value will be recorded, must be of the
@@ -132,7 +132,7 @@ class BPlusTree:
                 self._split_leaf(node)
 
     @beartype
-    def batch_insert(self, iterable: Iterable[tuple[int, bytes]]):
+    def batch_insert(self, iterable: Iterable[tuple[int, bytes]]) -> None:
         """Insert many elements in the tree at once.
 
         The iterable object must yield tuples (key, value) in ascending order.
@@ -199,7 +199,7 @@ class BPlusTree:
             return self.get(item) is not None
 
     @beartype
-    def __setitem__(self, key: int, value: bytes):
+    def __setitem__(self, key: int, value: bytes) -> None:
         self.insert(key, value, replace=True)
 
     @beartype
@@ -218,7 +218,7 @@ class BPlusTree:
             return rv
 
     @beartype
-    def __len__(self):
+    def __len__(self) -> int:
         with self._mem.read_transaction:
             node = self._left_record_node
             rv = 0
@@ -229,7 +229,7 @@ class BPlusTree:
                 node = self._mem.get_node(node.next_page)
 
     @beartype
-    def __length_hint__(self):
+    def __length_hint__(self) -> int:
         with self._mem.read_transaction:
             node = self._root_node
             if isinstance(node, LonelyRootNode):
@@ -244,7 +244,7 @@ class BPlusTree:
             return num_leaf_nodes * num_records_per_leaf_node
 
     @beartype
-    def __iter__(self, slice_: slice | None = None):
+    def __iter__(self, slice_: slice | None = None) -> Iterator[int]:
         if not slice_:
             slice_ = slice(None)
         with self._mem.read_transaction:
@@ -270,27 +270,27 @@ class BPlusTree:
                 yield self._get_value_from_record(record)
 
     @beartype
-    def __bool__(self):
+    def __bool__(self) -> bool:
         with self._mem.read_transaction:
             for _ in self:
                 return True
             return False
 
     @beartype
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<BPlusTree: {self._filepath} {self._tree_conf}>"
 
     # ####################### Implementation ##############################
 
     @beartype
-    def _initialize_empty_tree(self):
+    def _initialize_empty_tree(self) -> None:
         self._root_node_page = self._mem.next_available_page
         with self._mem.write_transaction:
             self._mem.set_node(self.LonelyRootNode(page=self._root_node_page))
         self._mem.set_metadata(self._root_node_page, self._tree_conf)
 
     @beartype
-    def _create_partials(self):
+    def _create_partials(self) -> None:
         self.LonelyRootNode = partial(LonelyRootNode, self._tree_conf)
         self.RootNode = partial(RootNode, self._tree_conf)
         self.InternalNode = partial(InternalNode, self._tree_conf)
@@ -372,7 +372,7 @@ class BPlusTree:
         return self._search_in_tree(key, child_node)
 
     @beartype
-    def _split_leaf(self, old_node: Node):
+    def _split_leaf(self, old_node: Node) -> None:
         """Split a leaf Node to allow the tree to grow."""
         parent = old_node.parent
         new_node = self.LeafNode(
@@ -399,7 +399,7 @@ class BPlusTree:
         self._mem.set_node(new_node)
 
     @beartype
-    def _split_parent(self, old_node: Node):
+    def _split_parent(self, old_node: Node) -> None:
         parent = old_node.parent
         new_node = self.InternalNode(page=self._mem.next_available_page)
         new_entries = old_node.split_entries()
@@ -424,7 +424,7 @@ class BPlusTree:
         self._mem.set_node(new_node)
 
     @beartype
-    def _create_new_root(self, reference: Reference):
+    def _create_new_root(self, reference: Reference) -> None:
         new_root = self.RootNode(page=self._mem.next_available_page)
         new_root.insert_entry(reference)
         self._root_node_page = new_root.page
@@ -450,7 +450,7 @@ class BPlusTree:
         return first_overflow_page
 
     @beartype
-    def _traverse_overflow(self, first_overflow_page: int):
+    def _traverse_overflow(self, first_overflow_page: int) -> Iterator[OverflowNode]:
         """Yield all Nodes of an overflow chain."""
         next_overflow_page = first_overflow_page
         while True:
@@ -471,7 +471,7 @@ class BPlusTree:
         return bytes(rv)
 
     @beartype
-    def _delete_overflow(self, first_overflow_page: int):
+    def _delete_overflow(self, first_overflow_page: int) -> None:
         """Delete all Nodes in an overflow chain."""
         for overflow_node in self._traverse_overflow(first_overflow_page):
             self._mem.del_node(overflow_node)

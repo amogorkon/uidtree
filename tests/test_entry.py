@@ -6,7 +6,7 @@ from bplustree.entry import OpaqueData, Record, Reference
 tree_conf = TreeConf(4096, 4, 16, 16)
 
 
-def test_record_int_serialization():
+def test_record_int_serialization() -> None:
     r1 = Record(tree_conf, 42, b"foo")
     data = r1.dump()
 
@@ -16,7 +16,7 @@ def test_record_int_serialization():
     assert r1.overflow_page == r2.overflow_page
 
 
-def test_record_int_serialization_overflow_value():
+def test_record_int_serialization_overflow_value() -> None:
     r1 = Record(tree_conf, 42, overflow_page=5)
     data = r1.dump()
 
@@ -26,7 +26,7 @@ def test_record_int_serialization_overflow_value():
     assert r1.overflow_page == r2.overflow_page
 
 
-def test_record_repr():
+def test_record_repr() -> None:
     r1 = Record(tree_conf, 42, b"foo")
     assert repr(r1) == "<Record: 42 value=b'foo'>"
 
@@ -37,13 +37,13 @@ def test_record_repr():
     assert repr(r1) == "<Record: 42 overflowing value>"
 
 
-def test_record_slots():
+def test_record_slots() -> None:
     r1 = Record(tree_conf, 42, b"foo")
     with pytest.raises(AttributeError):
         r1.foo = True
 
 
-def test_record_lazy_load():
+def test_record_lazy_load() -> None:
     data = Record(tree_conf, 42, b"foo").dump()
     r = Record(tree_conf, data=data)
 
@@ -63,7 +63,7 @@ def test_record_lazy_load():
     assert r._data is None
 
 
-def test_reference_int_serialization():
+def test_reference_int_serialization() -> None:
     r1 = Reference(tree_conf, 42, 1, 2)
     data = r1.dump()
 
@@ -73,12 +73,12 @@ def test_reference_int_serialization():
     assert r1.after == r2.after
 
 
-def test_reference_repr():
+def test_reference_repr() -> None:
     r1 = Reference(tree_conf, 42, 1, 2)
     assert repr(r1) == "<Reference: key=42 before=1 after=2>"
 
 
-def test_reference_lazy_load():
+def test_reference_lazy_load() -> None:
     data = Reference(tree_conf, 42, 1, 2).dump()
     r = Reference(tree_conf, data=data)
 
@@ -98,7 +98,7 @@ def test_reference_lazy_load():
     assert r._data is None
 
 
-def test_opaque_data():
+def test_opaque_data() -> None:
     data = b"foo"
     o = OpaqueData(data=data)
     assert o.data == data

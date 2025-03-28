@@ -1,9 +1,9 @@
 import pytest
 
-from bplustree.utils import pairwise, iter_slice
+from bplustree.utils import iter_slice, pairwise
 
 
-def test_pairwise():
+def test_pairwise() -> None:
     i = pairwise([0, 1, 2, 3, 4])
     assert next(i) == (0, 1)
     assert next(i) == (1, 2)
@@ -13,7 +13,7 @@ def test_pairwise():
         next(i)
 
 
-def test_iter_slice():
+def test_iter_slice() -> None:
     i = iter_slice(b"12345678", 3)
     assert next(i) == (b"123", False)
     assert next(i) == (b"456", False)

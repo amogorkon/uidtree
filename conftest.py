@@ -30,7 +30,7 @@ def clean_file(tmp_path: Path) -> Generator[Path, None, None]:
 
 
 @pytest.fixture(autouse=True)
-def patch_fsync():
+def patch_fsync() -> Generator[None, None, None]:
     mock_fsync = mock.patch("os.fsync")
     mock_fsync.start()
     yield

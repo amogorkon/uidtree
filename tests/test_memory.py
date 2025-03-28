@@ -21,7 +21,7 @@ tree_conf = TreeConf(4096, 4, 16, 16)
 node = LeafNode(tree_conf, page=3)
 
 
-def test_file_memory_node(clean_file):
+def test_file_memory_node(clean_file: Path) -> None:
     mem = FileMemory(clean_file, tree_conf)
 
     with pytest.raises(ReachedEndOfFile):
@@ -33,7 +33,7 @@ def test_file_memory_node(clean_file):
     mem.close()
 
 
-def test_file_memory_metadata(clean_file):
+def test_file_memory_metadata(clean_file: Path) -> None:
     mem = FileMemory(clean_file, tree_conf)
     with pytest.raises(ValueError):
         mem.get_metadata()
@@ -42,13 +42,13 @@ def test_file_memory_metadata(clean_file):
     mem.close()
 
 
-def test_file_memory_next_available_page(clean_file):
+def test_file_memory_next_available_page(clean_file: Path) -> None:
     mem = FileMemory(clean_file, tree_conf)
     for i in range(1, 100):
         assert mem.next_available_page == i
 
 
-def test_file_memory_freelist(clean_file):
+def test_file_memory_freelist(clean_file: Path) -> None:
     mem = FileMemory(clean_file, tree_conf)
     assert mem.next_available_page == 1
     assert mem._traverse_free_list() == (None, None)
@@ -80,13 +80,13 @@ def test_file_memory_freelist(clean_file):
     mem.close()
 
 
-def test_open_file_in_dir_invalid_path():
+def test_open_file_in_dir_invalid_path() -> None:
     with pytest.raises(ValueError):
         open_file_in_dir(Path("/foo/bar/does/not/exist"))
 
 
 @pytest.mark.skipif(platform.system() != "Windows", reason="Only runs on Windows")
-def test_open_file_in_dir_create_and_reopen_windows(clean_file):
+def test_open_file_in_dir_create_and_reopen_windows(clean_file: Path) -> None:
     file_fd, dir_fd = open_file_in_dir(clean_file)
     assert isinstance(file_fd, io.FileIO)
     file_fd.close()
@@ -99,7 +99,7 @@ def test_open_file_in_dir_create_and_reopen_windows(clean_file):
 
 
 @pytest.mark.skipif(platform.system() != "Linux", reason="Only runs on Linux")
-def test_open_file_in_dir_create_and_reopen_linux(clean_file):
+def test_open_file_in_dir_create_and_reopen_linux(clean_file: Path) -> None:
     file_fd, dir_fd = open_file_in_dir(clean_file)
     assert isinstance(file_fd, io.FileIO)
     file_fd.close()
@@ -113,7 +113,7 @@ def test_open_file_in_dir_create_and_reopen_linux(clean_file):
     os.close(dir_fd)
 
 
-def test_file_memory_write_transaction(clean_file):
+def test_file_memory_write_transaction(clean_file: Path) -> None:
     mem = FileMemory(clean_file, tree_conf)
     mem._lock = mock.Mock()
 
@@ -139,7 +139,7 @@ def test_file_memory_write_transaction(clean_file):
     mem.close()
 
 
-def test_file_memory_write_transaction_error(clean_file):
+def test_file_memory_write_transaction_error(clean_file: Path) -> None:
     mem = FileMemory(clean_file, tree_conf)
     mem._lock = mock.Mock()
     mem._cache[424242] = node
@@ -159,20 +159,20 @@ def test_file_memory_write_transaction_error(clean_file):
     mem.close()
 
 
-def test_file_memory_repr(clean_file):
+def test_file_memory_repr(clean_file: Path) -> None:
     mem = FileMemory(clean_file, tree_conf)
     assert repr(mem) == f"<FileMemory: {clean_file}>"
     mem.close()
 
 
-def test_wal_create_reopen_empty(clean_file):
+def test_wal_create_reopen_empty(clean_file: Path) -> None:
     WAL(clean_file, 64)
 
     wal = WAL(clean_file, 64)
     assert wal._page_size == 64
 
 
-def test_wal_create_reopen_uncommitted(clean_file):
+def test_wal_create_reopen_uncommitted(clean_file: Path) -> None:
     wal = WAL(clean_file, 64)
     wal.set_page(1, b"1" * 64)
     wal.commit()
@@ -185,7 +185,7 @@ def test_wal_create_reopen_uncommitted(clean_file):
     assert wal.get_page(2) is None
 
 
-def test_wal_rollback(clean_file):
+def test_wal_rollback(clean_file: Path) -> None:
     wal = WAL(clean_file, 64)
     wal.set_page(1, b"1" * 64)
     wal.commit()
@@ -198,7 +198,7 @@ def test_wal_rollback(clean_file):
     assert wal.get_page(2) is None
 
 
-def test_wal_checkpoint(clean_file):
+def test_wal_checkpoint(clean_file: Path) -> None:
     wal = WAL(clean_file, 64)
     wal.set_page(1, b"1" * 64)
     wal.commit()
@@ -213,6 +213,6 @@ def test_wal_checkpoint(clean_file):
     assert not Path(f"{clean_file}-wal").is_file()
 
 
-def test_wal_repr(clean_file):
+def test_wal_repr(clean_file: Path) -> None:
     wal = WAL(clean_file, 64)
     assert repr(wal) == f"<WAL: {clean_file}-wal>"

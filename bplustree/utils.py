@@ -2,7 +2,7 @@ import itertools
 from typing import Iterable, Iterator, Tuple
 
 
-def pairwise(iterable: Iterable) -> Iterator[Tuple]:
+def pairwise(iterable: Iterable[int]) -> Iterator[Tuple[int, int]]:
     """Iterate over elements two by two.
 
     s -> (s0,s1), (s1,s2), (s2, s3), ...
