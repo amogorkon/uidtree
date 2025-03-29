@@ -5,10 +5,10 @@ from pathlib import Path
 import pytest
 from beartype import beartype
 
-from bplustree.const import TreeConf
-from bplustree.memory import FileMemory, ReachedEndOfFile
-from bplustree.node import LeafNode
-from bplustree.tree import BPlusTree
+from uidtree.const import TreeConf
+from uidtree.memory import FileMemory, ReachedEndOfFile
+from uidtree.node import LeafNode
+from uidtree.tree import BPlusTree
 
 
 @beartype

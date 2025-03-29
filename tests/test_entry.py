@@ -1,7 +1,7 @@
 import pytest
 
-from bplustree.const import TreeConf
-from bplustree.entry import OpaqueData, Record, Reference
+from uidtree.const import TreeConf
+from uidtree.entry import OpaqueData, Record, Reference
 
 tree_conf = TreeConf(4096, 4, 16, 16)
 

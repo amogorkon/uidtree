@@ -6,3 +6,13 @@ dist
 bplustree.egg-info
 .coverage
 .pytest_cache
+*.egg
+*.egg-info
+*.pyo
+*.pyd
+*.db
+*.sqlite
+*.log
+*.tmp
+*.swp
+*.swo

@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import pytest
 
-from bplustree.const import ENDIAN, TreeConf
-from bplustree.entry import OpaqueData, Record, Reference
-from bplustree.node import (
+from uidtree.const import ENDIAN, TreeConf
+from uidtree.entry import OpaqueData, Record, Reference
+from uidtree.node import (
     FreelistNode,
     InternalNode,
     LeafNode,

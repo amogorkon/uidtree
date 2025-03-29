@@ -1,4 +1,4 @@
-from bplustree.serializer import (
+from uidtree.serializer import (
     deserialize,
     serialize,
 )

@@ -1,6 +1,6 @@
 import pytest
 
-from bplustree.utils import iter_slice, pairwise
+from uidtree.utils import iter_slice, pairwise
 
 
 def test_pairwise() -> None:

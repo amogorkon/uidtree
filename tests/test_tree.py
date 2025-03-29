@@ -7,9 +7,9 @@ from unittest import mock
 import pytest
 from beartype import beartype
 
-from bplustree.memory import FileMemory
-from bplustree.node import LeafNode, LonelyRootNode
-from bplustree.tree import BPlusTree
+from uidtree.memory import FileMemory
+from uidtree.node import LeafNode, LonelyRootNode
+from uidtree.tree import BPlusTree
 
 
 @beartype
@@ -26,7 +26,7 @@ def test_create_and_load_file(clean_file: Path) -> None:
 
 
 @beartype
-@mock.patch("bplustree.tree.BPlusTree.close")
+@mock.patch("uidtree.tree.BPlusTree.close")
 def test_closing_context_manager(mock_close: mock.Mock, clean_file: Path) -> None:
     with BPlusTree(clean_file, page_size=512, value_size=128):
         pass

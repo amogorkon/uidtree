@@ -8,14 +8,14 @@ from unittest import mock
 
 import pytest
 
-from bplustree.const import TreeConf
-from bplustree.memory import (
+from uidtree.const import TreeConf
+from uidtree.memory import (
     WAL,
     FileMemory,
     ReachedEndOfFile,
     open_file_in_dir,
 )
-from bplustree.node import FreelistNode, LeafNode
+from uidtree.node import FreelistNode, LeafNode
 
 tree_conf = TreeConf(4096, 4, 16, 16)
 node = LeafNode(tree_conf, page=3)
