@@ -1,10 +1,11 @@
 # AI Query
 
-* `Current code. Python 3.12 only, no backwards compatibility. I will post 4 files. Understand and acknowledge only, don't suggest anything.`
-* *post memory.py*
-* *post entry.py*
-* *post node.py*
+* Current code. Python 3.12 only, no backwards compatibility.
+* This is a bplustree implementation that I am completely rewriting. I want to build a triplestore on top of it, so I need this bplustree implementation to be 100% specialized and optimized for that use case - no other use cases. This means that all keys and values will be uuid (each split into two int64) and hdf5 will be used for storage. I will post 4 files. Understand and acknowledge only, don't suggest anything.
 * *post tree.py*
+* *post node.py*
+* *post entry.py*
+* *post memory.py*
 * `Now that I have posted and the code, let's start. Here is what I need help with:`
 
 
